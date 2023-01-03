@@ -1,4 +1,5 @@
 using BircheGamesApi.Models;
+using BircheGamesApi.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BircheGamesApi.Controllers;
@@ -9,9 +10,11 @@ public class GamesController: ControllerBase
 {
 
   private readonly IWebHostEnvironment webHostEnvironment;
-  public GamesController(IWebHostEnvironment webHostEnvironment)
+  private readonly IGameService gameService;
+  public GamesController(IWebHostEnvironment webHostEnvironment, IGameService gameService)
   {
     this.webHostEnvironment = webHostEnvironment;
+    this.gameService = gameService;
   }
 
   [HttpGet]
@@ -48,65 +51,45 @@ public class GamesController: ControllerBase
     return Ok(manual);
   }
 
+  [HttpPost]
+  public async Task<IActionResult> PostGame([FromBody] NewGameDto newGame)
+  {
+    try
+    {
+      return Ok(newGame);
+    }
+    catch
+    {
+      return NotFound("THIS IS NOT WORKING");
+    }
+  }
+
   [HttpGet]
   [Route("{id}")]
-  public IActionResult GetGameById([FromRoute] Guid id)
+  public async Task<IActionResult> GetGameById([FromRoute] Guid id)
   {
-    return Ok(GetTestGame());
+    Console.WriteLine("Looking for game of id: " + id);
+    try
+    {
+      Game game = await gameService.GetGameAsync(id);
+      if (game == null)
+      {
+        return NotFound();
+      }
+      return Ok(game);
+    }
+    catch
+    {
+      return BadRequest();
+    }
   }
 
   [HttpGet]
   [Route("profiles")]
-  public IActionResult GetAllGameProfiles()
+  public async Task<IActionResult> GetAllGameProfiles()
   {
-    List<GameProfile> profiles = new();
-    
-    profiles.Add(GetTestGame().Profile);
-    profiles.Add(GetTestGame().Profile);
-    profiles.Add(GetTestGame().Profile);
-    profiles.Add(GetTestGame().Profile);
-    profiles.Add(GetTestGame().Profile);
-    profiles.Add(GetTestGame().Profile);
-    profiles.Add(GetTestGame().Profile);
-    profiles.Add(GetTestGame().Profile);
-    profiles.Add(GetTestGame().Profile);
-    profiles.Add(GetTestGame().Profile);
-    profiles.Add(GetTestGame().Profile);
-    profiles.Add(GetTestGame().Profile);
-    profiles.Add(GetTestGame().Profile);
-    profiles.Add(GetTestGame().Profile);
-    profiles.Add(GetTestGame().Profile);
-    profiles.Add(GetTestGame().Profile);
-    profiles.Add(GetTestGame().Profile);
-    profiles.Add(GetTestGame().Profile);
-    profiles.Add(GetTestGame().Profile);
-    profiles.Add(GetTestGame().Profile);
-    profiles.Add(GetTestGame().Profile);
-    profiles.Add(GetTestGame().Profile);
-    
+    List<GameProfile> profiles = await gameService.GetGameProfilesAsync();
+  
     return Ok(profiles);
-  }
-
-  private Game GetTestGame()
-  {
-    Guid id = Guid.NewGuid();
-    Game game = new Game()
-    {
-      Id = id,
-      DistName = "dejavu",
-      ViewportRatio = 1.5f,
-      Profile = new()
-      {
-          Id = id,
-          Title = "Dejavu",
-          Description = "Dejavu was created in 1 month for Game Devcember 2022. It is the first game I have published. Some sections turned out much more difficult than I intended, and the story evolved into something much darker than I anticipated. All the same, it was fun to create, and I hope you had fun playing it is well.",
-          CoverImage = new()
-          {
-            GameId = id,
-            ImageName = "dejavu.png"
-          }
-      }
-    };
-    return game;
   }
 }
