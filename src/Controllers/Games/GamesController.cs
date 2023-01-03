@@ -52,15 +52,29 @@ public class GamesController: ControllerBase
   }
 
   [HttpPost]
-  public async Task<IActionResult> PostGame([FromBody] NewGameDto newGame)
+  public async Task<IActionResult> PostGame([FromForm] NewGameDto newGame)
   {
     try
     {
-      return Ok(newGame);
+      Guid id = Guid.NewGuid();
+      Game game = new()
+      {
+        Id = id,
+        ViewportRatio = newGame.ViewportRatio,
+        Profile = new()
+        {
+          Id = id,
+          Title = newGame.Title,
+          Description = newGame.Description
+        }
+      };
+      // Todo: Process the IFormFiles...
+      await gameService.CreateAsync(game);
+      return Ok(game);
     }
     catch
     {
-      return NotFound("THIS IS NOT WORKING");
+      return BadRequest("Unable to parse upload.");
     }
   }
 
