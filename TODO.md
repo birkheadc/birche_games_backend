@@ -1,4 +1,3 @@
-# TODO]
-- TEST CURRENT FUNCTIONALITY IN PROD
+# TODO
 - Write Readme
-- Build the database
+- Admin authentication for non-GET methods
