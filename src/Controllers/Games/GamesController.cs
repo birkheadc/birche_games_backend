@@ -1,6 +1,7 @@
 using BircheGamesApi.Models;
 using BircheGamesApi.Services;
 using Microsoft.AspNetCore.Mvc;
+using MongoDB.Bson;
 
 namespace BircheGamesApi.Controllers;
 
@@ -75,20 +76,7 @@ public class GamesController: ControllerBase
   {
     try
     {
-      Guid id = Guid.NewGuid();
-      Game game = new()
-      {
-        Id = id,
-        ViewportRatio = newGame.ViewportRatio,
-        Profile = new()
-        {
-          Id = id,
-          Title = newGame.Title,
-          Description = newGame.Description
-        }
-      };
-      Console.WriteLine("Dist length = " + newGame.Dist.Length);
-      await gameService.CreateAsync(game);
+      Game? game = await gameService.CreateAsync(newGame);
       return Ok(game);
     }
     catch
@@ -99,7 +87,7 @@ public class GamesController: ControllerBase
 
   [HttpGet]
   [Route("{id}")]
-  public async Task<IActionResult> GetGameById([FromRoute] Guid id)
+  public async Task<IActionResult> GetGameById([FromRoute] ObjectId id)
   {
     Console.WriteLine("Looking for game of id: " + id);
     try

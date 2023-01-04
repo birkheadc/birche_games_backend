@@ -1,6 +1,7 @@
 using BircheGamesApi.Config;
 using BircheGamesApi.Models;
 using Microsoft.Extensions.Options;
+using MongoDB.Bson;
 using MongoDB.Driver;
 
 namespace BircheGamesApi.Repositories;
@@ -22,7 +23,7 @@ public class GameRepository : IGameRepository
     await gamesCollection.InsertOneAsync(game);
   }
 
-  public async Task<Game> GetGameAsync(Guid id)
+  public async Task<Game> GetGameAsync(ObjectId id)
   {
     // TODO: Get game by Id
     Game game = await gamesCollection.Find(_ => true).FirstOrDefaultAsync();

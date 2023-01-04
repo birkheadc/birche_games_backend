@@ -28,6 +28,7 @@ builder.Services.AddSingleton(databaseConfig);
 builder.Services.AddScoped<IGameService, GameService>();
 builder.Services.AddScoped<IGameRepository, GameRepository>();
 builder.Services.AddScoped<IGameProfileRepository, GameProfileRepository>();
+builder.Services.AddScoped<IFileService, FileService>();
 
 builder.Services.AddControllers();
 

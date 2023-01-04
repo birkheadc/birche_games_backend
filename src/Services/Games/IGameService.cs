@@ -1,11 +1,12 @@
 using BircheGamesApi.Models;
+using MongoDB.Bson;
 
 namespace BircheGamesApi.Services;
 
 public interface IGameService
 {
   public Task<List<Game>> GetGamesAsync();
-  public Task<Game> GetGameAsync(Guid id);
+  public Task<Game> GetGameAsync(ObjectId id);
   public Task<List<GameProfile>> GetGameProfilesAsync();
-  public Task CreateAsync(Game game);
+  public Task<Game?> CreateAsync(NewGameDto newGame);
 }
