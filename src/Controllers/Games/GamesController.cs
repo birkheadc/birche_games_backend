@@ -51,6 +51,25 @@ public class GamesController: ControllerBase
     return Ok(manual);
   }
 
+  // [HttpPost]
+  // public async Task<IActionResult> PostGame([FromForm] FileModel file)
+  // {
+  //   try
+  //   {
+  //     Console.WriteLine("Hello there");
+  //     string path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "TESTFILENAME");
+  //     using (Stream stream = new FileStream(path, FileMode.Create))
+  //     {
+  //       await file.File.CopyToAsync(stream);
+  //     }
+  //     return Ok();
+  //   }
+  //   catch
+  //   {
+  //     return StatusCode(9001);
+  //   }
+  // }
+
   [HttpPost]
   public async Task<IActionResult> PostGame([FromForm] NewGameDto newGame)
   {
@@ -68,13 +87,13 @@ public class GamesController: ControllerBase
           Description = newGame.Description
         }
       };
-      // Todo: Process the IFormFiles...
+      Console.WriteLine("Dist length = " + newGame.Dist.Length);
       await gameService.CreateAsync(game);
       return Ok(game);
     }
     catch
     {
-      return BadRequest("Unable to parse upload.");
+      return StatusCode(9001);
     }
   }
 
