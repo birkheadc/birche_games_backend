@@ -5,8 +5,8 @@ namespace BircheGamesApi.Services;
 
 public interface IGameService
 {
-  public Task<List<Game>> GetGamesAsync();
-  public Task<Game> GetGameAsync(ObjectId id);
-  public Task<List<GameProfile>> GetGameProfilesAsync();
-  public Task<Game?> CreateAsync(NewGameDto newGame);
+  public Task<List<GameViewModel>> GetGamesAsync();
+  public Task<GameViewModel> GetGameAsync(ObjectId id);
+  public Task<List<GameProfileViewModel>> GetGameProfilesAsync();
+  public Task<GameViewModel?> CreateAsync(NewGameDto newGame);
 }

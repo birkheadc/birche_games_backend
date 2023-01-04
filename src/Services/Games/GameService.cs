@@ -9,15 +9,17 @@ public class GameService : IGameService
   private readonly IGameRepository gameRepository;
   private readonly IGameProfileRepository gameProfileRepository;
   private readonly IFileService fileService;
+  private readonly GameConverter converter;
 
   public GameService(IGameProfileRepository gameProfileRepository, IGameRepository gameRepository, IFileService fileService)
   {
     this.gameProfileRepository = gameProfileRepository;
     this.gameRepository = gameRepository;
     this.fileService = fileService;
+    converter = new GameConverter();
   }
 
-  public async Task<Game?> CreateAsync(NewGameDto newGame)
+  public async Task<GameViewModel?> CreateAsync(NewGameDto newGame)
   {
     if (IsGameValid(newGame) == false) return null;
     ObjectId id = ObjectId.GenerateNewId();
@@ -35,7 +37,7 @@ public class GameService : IGameService
     await fileService.CopyFileAsync(FileType.DIST, newGame.Dist!, id);
     await fileService.CopyFileAsync(FileType.COVERIMAGE, newGame.CoverImage!, id);
     await gameRepository.CreateAsync(game);
-    return game;
+    return converter.ToViewModel(game);
   }
 
   private bool IsGameValid(NewGameDto newGame)
@@ -49,20 +51,32 @@ public class GameService : IGameService
     return true;
   }
 
-  public async Task<Game> GetGameAsync(ObjectId id)
+  public async Task<GameViewModel> GetGameAsync(ObjectId id)
   {
     Game game = await gameRepository.GetGameAsync(id);
-    return game;
+    GameViewModel viewModel = converter.ToViewModel(game);
+    return viewModel;
   }
 
-  public async Task<List<GameProfile>> GetGameProfilesAsync()
+  public async Task<List<GameProfileViewModel>> GetGameProfilesAsync()
   {
-    return await gameRepository.GetGameProfilesAsync();
+    List<GameProfile> profiles = await gameRepository.GetGameProfilesAsync();
+    List<GameProfileViewModel> viewModels = new();
+    foreach (GameProfile profile in profiles)
+    {
+      viewModels.Add(converter.ToViewModel(profile));
+    }
+    return viewModels;
   }
 
-  public async Task<List<Game>> GetGamesAsync()
+  public async Task<List<GameViewModel>> GetGamesAsync()
   {
     List<Game> games = await gameRepository.GetGamesAsync();
-    return games;
+    List<GameViewModel> viewModels = new();
+    foreach (Game game in games)
+    {
+      viewModels.Add(converter.ToViewModel(game));
+    }
+    return viewModels;
   }
 }

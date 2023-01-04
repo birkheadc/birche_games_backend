@@ -52,31 +52,12 @@ public class GamesController: ControllerBase
     return Ok(manual);
   }
 
-  // [HttpPost]
-  // public async Task<IActionResult> PostGame([FromForm] FileModel file)
-  // {
-  //   try
-  //   {
-  //     Console.WriteLine("Hello there");
-  //     string path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "TESTFILENAME");
-  //     using (Stream stream = new FileStream(path, FileMode.Create))
-  //     {
-  //       await file.File.CopyToAsync(stream);
-  //     }
-  //     return Ok();
-  //   }
-  //   catch
-  //   {
-  //     return StatusCode(9001);
-  //   }
-  // }
-
   [HttpPost]
   public async Task<IActionResult> PostGame([FromForm] NewGameDto newGame)
   {
     try
     {
-      Game? game = await gameService.CreateAsync(newGame);
+      GameViewModel? game = await gameService.CreateAsync(newGame);
       return Ok(game);
     }
     catch
@@ -87,12 +68,12 @@ public class GamesController: ControllerBase
 
   [HttpGet]
   [Route("{id}")]
-  public async Task<IActionResult> GetGameById([FromRoute] ObjectId id)
+  public async Task<IActionResult> GetGameById([FromRoute] string id)
   {
     Console.WriteLine("Looking for game of id: " + id);
     try
     {
-      Game game = await gameService.GetGameAsync(id);
+      GameViewModel game = await gameService.GetGameAsync(ObjectId.Parse(id));
       if (game == null)
       {
         return NotFound();
@@ -109,7 +90,7 @@ public class GamesController: ControllerBase
   [Route("profiles")]
   public async Task<IActionResult> GetAllGameProfiles()
   {
-    List<GameProfile> profiles = await gameService.GetGameProfilesAsync();
+    List<GameProfileViewModel> profiles = await gameService.GetGameProfilesAsync();
   
     return Ok(profiles);
   }
