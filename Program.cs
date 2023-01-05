@@ -1,6 +1,8 @@
 using BircheGamesApi.Config;
+using BircheGamesApi.Models;
 using BircheGamesApi.Repositories;
 using BircheGamesApi.Services;
+using MongoDB.Driver;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,6 +23,28 @@ else
   };
 }
 
+// Set default Admin password in database if password doesn't exist
+
+MongoClient mongoClient = new(databaseConfig.ConnectionString);
+IMongoDatabase db = mongoClient.GetDatabase(databaseConfig.DatabaseName);
+IMongoCollection<PasswordModel> passwordCollection = db.GetCollection<PasswordModel>(databaseConfig.PasswordCollectionName);
+
+if (passwordCollection.CountDocuments(_ => true) == 0)
+{
+  string password;
+  if (builder.Environment.IsDevelopment())
+  {
+    password = builder.Configuration.GetSection("AdminPassword").Get<PasswordModel>().Password;
+  }
+  else
+  {
+    password = Environment.GetEnvironmentVariable("ASPNETCORE_ADMIN_PASSWORD") ?? "";
+  }
+  string hash = BCrypt.Net.BCrypt.HashPassword(password);
+  PasswordModel passwordModel = new() { Password = hash };
+  passwordCollection.InsertOne(passwordModel);
+}
+
 // Add services to the container.
 
 builder.Services.AddSingleton(databaseConfig);
@@ -28,6 +52,8 @@ builder.Services.AddSingleton(databaseConfig);
 builder.Services.AddScoped<IGameService, GameService>();
 builder.Services.AddScoped<IGameRepository, GameRepository>();
 builder.Services.AddScoped<IFileService, FileService>();
+builder.Services.AddScoped<IPasswordService, PasswordService>();
+builder.Services.AddScoped<IPasswordRepository, PasswordRepository>();
 
 builder.Services.AddControllers();
 

@@ -25,8 +25,7 @@ public class PasswordService : IPasswordService
 
   public async Task<bool> IsPasswordCorrect(string password)
   {
-    string hash = PasswordToHash(password);
-    return await passwordRepository.ValidateHash(hash);
+    return await passwordRepository.ValidatePassword(password);
   }
 
   private bool IsPasswordValid(string password)
