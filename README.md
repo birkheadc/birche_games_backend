@@ -26,6 +26,7 @@ I deploy using Docker. The following Environment Variables are needed for the ap
 - `ASPNETCORE_CONNECTION_STRING`: The connection string used by MongoDB
 - `ASPNETCORE_DATABASE_NAME`: The name of the database
 - `APSNETCORE_GAMES_COLLECTION_NAME`: The name of the collection that Game meta-data will be stored in
+- `ASPNETCORE_PASSWORD_COLLECTION_NAME`: The name of the collection where the admin password will be stored
 - `ASPNETCORE_ADMIN_PASSWORD`: The default admin password for managing the application and database
 
 The Dockerfile expects these to be passed as arguments, the argument names are the same as the environment variable name, minus the header `ASPNETCORE_`. I recommend using docker-compose and simply listing them in args in docker-compose.yml.

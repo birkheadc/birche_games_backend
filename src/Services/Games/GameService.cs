@@ -7,13 +7,11 @@ namespace BircheGamesApi.Services;
 public class GameService : IGameService
 {
   private readonly IGameRepository gameRepository;
-  private readonly IGameProfileRepository gameProfileRepository;
   private readonly IFileService fileService;
   private readonly GameConverter converter;
 
-  public GameService(IGameProfileRepository gameProfileRepository, IGameRepository gameRepository, IFileService fileService)
+  public GameService(IGameRepository gameRepository, IFileService fileService)
   {
-    this.gameProfileRepository = gameProfileRepository;
     this.gameRepository = gameRepository;
     this.fileService = fileService;
     converter = new GameConverter();

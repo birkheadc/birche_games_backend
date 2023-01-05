@@ -9,7 +9,6 @@ DatabaseConfig databaseConfig;
 if (builder.Environment.IsDevelopment())
 {
   databaseConfig = builder.Configuration.GetSection("DatabaseConfig").Get<DatabaseConfig>();
-  Console.WriteLine("Connection String: " + databaseConfig.ConnectionString);
 }
 else
 {
@@ -17,7 +16,8 @@ else
   {
     ConnectionString = Environment.GetEnvironmentVariable("ASPNETCORE_CONNECTION_STRING"),
     DatabaseName = Environment.GetEnvironmentVariable("ASPNETCORE_DATABASE_NAME"),
-    GamesCollectionName = Environment.GetEnvironmentVariable("ASPNETCORE_GAMES_COLLECTION_NAME")
+    GamesCollectionName = Environment.GetEnvironmentVariable("ASPNETCORE_GAMES_COLLECTION_NAME"),
+    PasswordCollectionName = Environment.GetEnvironmentVariable("ASPNETCORE_PASSWORD_COLLECTION_NAME")
   };
 }
 
@@ -27,7 +27,6 @@ builder.Services.AddSingleton(databaseConfig);
 
 builder.Services.AddScoped<IGameService, GameService>();
 builder.Services.AddScoped<IGameRepository, GameRepository>();
-builder.Services.AddScoped<IGameProfileRepository, GameProfileRepository>();
 builder.Services.AddScoped<IFileService, FileService>();
 
 builder.Services.AddControllers();
