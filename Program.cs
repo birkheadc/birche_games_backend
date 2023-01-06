@@ -1,7 +1,10 @@
+using System.Text;
 using BircheGamesApi.Config;
 using BircheGamesApi.Models;
 using BircheGamesApi.Repositories;
 using BircheGamesApi.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -23,44 +26,69 @@ else
   };
 }
 
-// Set default Admin password in database if password doesn't exist
-
-MongoClient mongoClient = new(databaseConfig.ConnectionString);
-IMongoDatabase db = mongoClient.GetDatabase(databaseConfig.DatabaseName);
-IMongoCollection<PasswordModel> passwordCollection = db.GetCollection<PasswordModel>(databaseConfig.PasswordCollectionName);
-
-if (passwordCollection.CountDocuments(_ => true) == 0)
+JwtConfig jwtConfig;
+if (builder.Environment.IsDevelopment())
 {
-  string password;
-  if (builder.Environment.IsDevelopment())
-  {
-    password = builder.Configuration.GetSection("AdminPassword").Get<PasswordModel>().Password;
-  }
-  else
-  {
-    password = Environment.GetEnvironmentVariable("ASPNETCORE_ADMIN_PASSWORD") ?? "";
-  }
-  string hash = BCrypt.Net.BCrypt.HashPassword(password);
-  PasswordModel passwordModel = new() { Password = hash };
-  passwordCollection.InsertOne(passwordModel);
+  jwtConfig = builder.Configuration.GetSection("Jwt").Get<JwtConfig>();
 }
+else
+{
+  jwtConfig = new JwtConfig()
+  {
+    Issuer = Environment.GetEnvironmentVariable("ASPNETCORE_JWT_ISSUER"),
+    Audience = Environment.GetEnvironmentVariable("ASPNETCORE_JWT_AUDIENCE"),
+    Key = Environment.GetEnvironmentVariable("ASPNETCORE_JWT_KEY")
+  };
+}
+
+// Set default Admin password in database if password doesn't exist
+try
+{
+  MongoClient mongoClient = new(databaseConfig.ConnectionString);
+  IMongoDatabase db = mongoClient.GetDatabase(databaseConfig.DatabaseName);
+  IMongoCollection<PasswordModel> passwordCollection = db.GetCollection<PasswordModel>(databaseConfig.PasswordCollectionName);
+
+  if (passwordCollection.CountDocuments(_ => true) == 0)
+  {
+    string password;
+    if (builder.Environment.IsDevelopment())
+    {
+      password = builder.Configuration.GetSection("AdminPassword").Get<PasswordModel>().Password;
+    }
+    else
+    {
+      password = Environment.GetEnvironmentVariable("ASPNETCORE_ADMIN_PASSWORD") ?? "";
+    }
+    string hash = BCrypt.Net.BCrypt.HashPassword(password);
+    PasswordModel passwordModel = new() { Password = hash };
+    passwordCollection.InsertOne(passwordModel);
+  }
+}
+catch
+{
+  throw new Exception("Unable to connect to database. Aborting program.");
+}
+
 
 // Add services to the container.
 
 builder.Services.AddSingleton(databaseConfig);
+builder.Services.AddSingleton(jwtConfig);
 
 builder.Services.AddScoped<IGameService, GameService>();
 builder.Services.AddScoped<IGameRepository, GameRepository>();
 builder.Services.AddScoped<IFileService, FileService>();
 builder.Services.AddScoped<IPasswordService, PasswordService>();
 builder.Services.AddScoped<IPasswordRepository, PasswordRepository>();
+builder.Services.AddScoped<ISessionService, SessionService>();
 
 builder.Services.AddControllers();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddCors(
+builder.Services.AddCors
+(
   options =>
   {
     options.AddPolicy(
@@ -71,6 +99,34 @@ builder.Services.AddCors(
       }
     );
   });
+
+builder.Services.AddAuthentication
+(
+  options =>
+  {
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+
+  }
+).AddJwtBearer
+(
+  o =>
+  {
+    o.TokenValidationParameters = new()
+    {
+      ValidIssuer = jwtConfig.Issuer,
+      ValidAudience = jwtConfig.Audience,
+      IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtConfig.Key ?? "")),
+      ValidateIssuer = true,
+      ValidateAudience = true,
+      ValidateLifetime = true,
+      ValidateIssuerSigningKey = true
+    };
+  }
+);
+
+builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
@@ -92,6 +148,7 @@ app.MapGet("/api/rootpath", (HttpContext context) =>
     return url;
 });
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
