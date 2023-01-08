@@ -6,4 +6,5 @@ namespace BircheGamesApi.Services;
 public interface ISessionService
 {
   public SessionToken GenerateSessionToken();
+  public bool ValidateSessionToken(string token);
 }

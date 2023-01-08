@@ -1,3 +1,3 @@
 # TODO
 - Write Readme
-- Admin authentication for non-GET methods
+- Look into volumes for static files when deploying

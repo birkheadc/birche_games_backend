@@ -1,3 +1,4 @@
+using BircheGamesApi.Filters;
 using BircheGamesApi.Models;
 using BircheGamesApi.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -52,6 +53,7 @@ public class GamesController: ControllerBase
     return Ok(manual);
   }
 
+  [TokenAuth]
   [HttpPost]
   public async Task<IActionResult> PostGame([FromForm] NewGameDto newGame)
   {
@@ -79,6 +81,22 @@ public class GamesController: ControllerBase
         return NotFound();
       }
       return Ok(game);
+    }
+    catch
+    {
+      return BadRequest();
+    }
+  }
+
+  [TokenAuth]
+  [HttpDelete]
+  [Route("{id}")]
+  public async Task<IActionResult> DeleteGameById([FromRoute] string id)
+  {
+    try
+    {
+      await gameService.DeleteGameById(ObjectId.Parse(id));
+      return Ok();
     }
     catch
     {

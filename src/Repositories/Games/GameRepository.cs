@@ -19,8 +19,20 @@ public class GameRepository : IGameRepository
 
   public async Task CreateAsync(Game game)
   {
-    Console.WriteLine("Creating game with id: " + game.Id);
     await gamesCollection.InsertOneAsync(game);
+  }
+
+  public async Task<bool> DeleteGameById(ObjectId id)
+  {
+    try
+    {
+      DeleteResult result = await gamesCollection.DeleteOneAsync(game => game.Id == id);
+      return result.DeletedCount > 0;
+    }
+    catch
+    {
+      return false;
+    }
   }
 
   public async Task<Game> GetGameAsync(ObjectId id)

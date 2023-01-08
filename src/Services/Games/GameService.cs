@@ -32,7 +32,7 @@ public class GameService : IGameService
         Description = newGame.Description
       }
     };
-    await fileService.CopyFileAsync(FileType.DIST, newGame.Dist!, id);
+    await fileService.CopyFileAsync(FileType.ZIP, newGame.Dist!, id);
     await fileService.CopyFileAsync(FileType.COVERIMAGE, newGame.CoverImage!, id);
     await gameRepository.CreateAsync(game);
     return converter.ToViewModel(game);
@@ -76,5 +76,20 @@ public class GameService : IGameService
       viewModels.Add(converter.ToViewModel(game));
     }
     return viewModels;
+  }
+
+  public async Task DeleteGameById(ObjectId id)
+  {
+    bool wasDeleted = await gameRepository.DeleteGameById(id);
+    if (wasDeleted == true)
+    {
+      await DeleteGameFiles(id);
+    }
+  }
+
+  private async Task DeleteGameFiles(ObjectId id)
+  {
+    await fileService.DeleteFileAsync(FileType.FOLDER, id);
+    await fileService.DeleteFileAsync(FileType.COVERIMAGE, id);
   }
 }

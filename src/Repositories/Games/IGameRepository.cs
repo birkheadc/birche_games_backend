@@ -9,4 +9,5 @@ public interface IGameRepository
   public Task<Game> GetGameAsync(ObjectId id);
   public Task<List<GameProfile>> GetGameProfilesAsync();
   public Task CreateAsync(Game game);
+  public Task<bool> DeleteGameById(ObjectId id);
 }

@@ -17,12 +17,27 @@ public class SessionController: ControllerBase
   }
 
   [PasswordAuth]
-  [HttpPost]
+  [HttpGet]
   public IActionResult GetSessionToken()
   {
     try
     {
       return Ok(sessionService.GenerateSessionToken());
+    }
+    catch
+    {
+      return Forbid();
+    }
+  }
+
+  [TokenAuth]
+  [HttpPost]
+  [Route("validate")]
+  public IActionResult ValidateSessionToken()
+  {
+    try
+    {
+      return Ok();
     }
     catch
     {
