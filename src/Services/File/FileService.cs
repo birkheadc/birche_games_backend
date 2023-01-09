@@ -7,13 +7,22 @@ public class FileService : IFileService
   public async Task CopyFileAsync(FileType fileType, IFormFile file, ObjectId id)
   {
     string path = GetPath(fileType, id);
-    using (Stream stream = new FileStream(path, FileMode.Create))
+    Console.WriteLine("Path: " + path);
+    try
     {
-      await file.CopyToAsync(stream);
+      using (Stream stream = new FileStream(path, FileMode.Create))
+      {
+        await file.CopyToAsync(stream);
+      }
     }
+    catch (Exception e)
+    {
+      Console.WriteLine("Exception while trying to write file: ");
+      Console.WriteLine(e);
+    }
+    
 
     // Todo: Validate files
-
     if (fileType == FileType.ZIP)
     {
       System.IO.Compression.ZipFile.ExtractToDirectory(path, path.Substring(0, path.Length - 4));
@@ -21,7 +30,7 @@ public class FileService : IFileService
     }
   }
 
-  public async Task DeleteFileAsync(FileType fileType, ObjectId id)
+  public void DeleteFileAsync(FileType fileType, ObjectId id)
   {
     string path = GetPath(fileType, id);
     try

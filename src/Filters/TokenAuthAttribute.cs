@@ -15,9 +15,6 @@ public class TokenAuthAttribute : Attribute, IAsyncActionFilter
       return;
     }
 
-    Console.WriteLine("Authorization header value: " + token);
-
-    // TODO
     // Refuse access if token is included but is invalid
     ISessionService sessionService = context.HttpContext.RequestServices.GetRequiredService<ISessionService>();
     if (sessionService.ValidateSessionToken(token) == false)

@@ -83,13 +83,13 @@ public class GameService : IGameService
     bool wasDeleted = await gameRepository.DeleteGameById(id);
     if (wasDeleted == true)
     {
-      await DeleteGameFiles(id);
+      DeleteGameFiles(id);
     }
   }
 
-  private async Task DeleteGameFiles(ObjectId id)
+  private void DeleteGameFiles(ObjectId id)
   {
-    await fileService.DeleteFileAsync(FileType.FOLDER, id);
-    await fileService.DeleteFileAsync(FileType.COVERIMAGE, id);
+    fileService.DeleteFileAsync(FileType.FOLDER, id);
+    fileService.DeleteFileAsync(FileType.COVERIMAGE, id);
   }
 }
