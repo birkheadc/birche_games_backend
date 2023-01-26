@@ -16,7 +16,7 @@ The API is mostly standard CRUD. I initially had trouble wiring POSTing of files
 
 ## Authentication
 
-Authentication is not yet completed, I plan to use a simple filter to check for Authentication header on protected methods, as well as a PasswordService and PasswordRepository to allow for changing and validating of password. There will only be one admin, so only a single entry will be needed.
+Authentication uses JSON web token (JWT)s. A JWT token is generated when the user provides a valid username and password (or in this case, just a password, as the only user is the admin). Then, subsequent protected requests are validated using this token.
 
 ## Deployment
 
