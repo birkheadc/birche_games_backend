@@ -16,7 +16,7 @@ The API is mostly standard CRUD. I initially had trouble wiring POSTing of files
 
 ## Authentication
 
-Authentication uses JSON web token (JWT)s. A JWT token is generated when the user provides a valid username and password (or in this case, just a password, as the only user is the admin). Then, subsequent protected requests are validated using this token.
+Authentication uses two steps. First, a session token is requested via an admin password. If the password is correct, a session token is returned to the front-end. The front-end can then use this session token to authenticate further protected requests.
 
 ## Deployment
 
@@ -25,8 +25,11 @@ I deploy using Docker. The following Environment Variables are needed for the ap
 - `ASPNETCORE_ENVIRONMENT`: Set to `production` when deploying
 - `ASPNETCORE_CONNECTION_STRING`: The connection string used by MongoDB
 - `ASPNETCORE_DATABASE_NAME`: The name of the database
-- `APSNETCORE_GAMES_COLLECTION_NAME`: The name of the collection that Game meta-data will be stored in
+- `ASPNETCORE_GAMES_COLLECTION_NAME`: The name of the collection that Game meta-data will be stored in
 - `ASPNETCORE_PASSWORD_COLLECTION_NAME`: The name of the collection where the admin password will be stored
 - `ASPNETCORE_ADMIN_PASSWORD`: The default admin password for managing the application and database
+- `ASPNETCORE_JWT_KEY`: A random string used to create session tokens, keep secret
+- `ASPNETCORE_JWT_ISSUER`: Not sure if this is strictly needed
+- `ASPNETCORE_JWT_AUDIENCE`: Same as issuer
 
 The Dockerfile expects these to be passed as arguments, the argument names are the same as the environment variable name, minus the header `ASPNETCORE_`. I recommend using docker-compose and simply listing them in args in docker-compose.yml.
