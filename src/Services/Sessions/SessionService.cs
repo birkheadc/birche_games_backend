@@ -18,9 +18,7 @@ public class SessionService : ISessionService
   }
   public SessionToken GenerateSessionToken()
   {
-    Console.WriteLine("Here's your token!");    
     SecurityToken token = tokenHandler.CreateToken(GetSecurityTokenDescriptor());
-    Console.WriteLine(tokenHandler.WriteToken(token));
     return new SessionToken()
     {
       Token = tokenHandler.WriteToken(token)
@@ -52,6 +50,7 @@ public class SessionService : ISessionService
         GetTokenValidationParameters(),
         out SecurityToken _
       );
+      
       return true;
     }
     catch
