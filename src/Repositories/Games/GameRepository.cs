@@ -37,8 +37,7 @@ public class GameRepository : IGameRepository
 
   public async Task<Game> GetGameAsync(ObjectId id)
   {
-    // TODO: Get game by Id
-    Game game = await gamesCollection.Find(_ => true).FirstOrDefaultAsync();
+    Game game = await gamesCollection.Find(game => game.Id == id).FirstOrDefaultAsync();
     return game;
   }
 
