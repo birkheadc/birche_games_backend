@@ -14,6 +14,8 @@ The front end then knows to search for these files in these locations, and can f
 
 The API is mostly standard CRUD. I initially had trouble wiring POSTing of files as above. Eventually I made it work by using `[FromForm]` in the controller method, and using `FormData` in React when posting the data.
 
+I also originally planned on creating a `help` route on each controller that would return a manual on what that controller was capable of, but I don't think I ever got around to expanding on this idea as I would have liked. I added this paragraph to the readme later in case anyone reading this was curious about the meaning of the classes in `src/Controllers/Docs`.
+
 ## Authentication
 
 Authentication uses two steps. First, a session token is requested via an admin password. If the password is correct, a session token is returned to the front-end. The front-end can then use this session token to authenticate further protected requests.
